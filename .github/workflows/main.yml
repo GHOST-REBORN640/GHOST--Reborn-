@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -15,25 +14,26 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk-headless unzip zip libffi-dev libssl-dev
+          sudo apt install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk-headless unzip zip libffi-dev libssl-dev autoconf libtool pkg-config
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy
 
-      - name: Build with Buildozer
+      - name: Create Buildozer Spec and Build
         run: |
-          yes | buildozer init
-          # Spec එකේ වෙනස්කම් සිදු කිරීම
+          # බිල්ඩෝසර් එක ඉනිට් කරලා අවශ්‍ය වෙනස්කම් ටික කරනවා
+          buildozer init
           sed -i 's/^title = .*/title = GHOST Reborn/' buildozer.spec
           sed -i 's/^package.name = .*/package.name = ghostreborn/' buildozer.spec
           sed -i 's/^#icon.filename = .*/icon.filename = logo.jpg/' buildozer.spec
-          sed -i 's/^requirements = .*/requirements = python3,kivy,google-genai,requests,urllib3/' buildozer.spec
+          sed -i 's/^requirements = .*/requirements = python3,kivy==2.2.1,google-genai,requests,urllib3,charset-normalizer,idna,certifi/' buildozer.spec
           sed -i 's/^android.api = .*/android.api = 31/' buildozer.spec
           sed -i 's/^#android.accept_sdk_license = .*/android.accept_sdk_license = True/' buildozer.spec
+          sed -i 's/^#android.permissions = .*/android.permissions = INTERNET/' buildozer.spec
           
-          # Build process
+          # Build process - මාරම ලොකු වෙලාවක් යයි (විනාඩි 20-30ක් විතර)
           buildozer -v android debug
 
       - name: Upload APK
